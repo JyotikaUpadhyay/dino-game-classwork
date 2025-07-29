@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dino Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f7f1e1; /* Desert style */
+      overflow: hidden;
+    }
+
+    #game {
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(#fdf6e3, #f1e3c6);
+      border-bottom: 15px solid #e06c19;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #dino {
+      width: 60px;
+      height: 60px;
+      background-color: green;
+      position: absolute;
+      bottom: 15px;
+      left: 80px;
+      border-radius: 5px;
+    }
+
+    #obstacle {
+      width: 30px;
+      height: 60px;
+      background-color: gray;
+      position: absolute;
+      bottom: 15px;
+      left: 100%;
+      border-radius: 4px;
+    }
+
+    #score {
+      font-size: 24px;
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    #gameOver {
+      display: none;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff8dc;
+      border: 3px dashed red;
+      padding: 25px 40px;
+      font-size: 22px;
+      font-weight: bold;
+      color: red;
+      text-align: center;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game">
+  <div id="dino"></div>
+  <div id="obstacle"></div>
+  <div id="score">Score: 0</div>
+  <div id="gameOver">
+    💥 Game Over!<br>
+    <span id="finalScore"></span><br>
+    <button onclick="restart()">Play Again 🔄</button>
+  </div>
+</div>
+
+<script>
+  const dino = document.getElementById("dino");
+  const obstacle = document.getElementById("obstacle");
+  const scoreText = document.getElementById("score");
+  const gameOver = document.getElementById("gameOver");
+  const finalScore = document.getElementById("finalScore");
+
+  let isJumping = false;
+  let score = 0;
+  let gameInterval;
+
+  document.addEventListener("keydown", () => {
+    if (!isJumping) jump();
+  });
+
+  function jump() {
+    isJumping = true;
+    let up = 0;
+    const upInterval = setInterval(() => {
+      if (up >= 150) {
+        clearInterval(upInterval);
+        const downInterval = setInterval(() => {
+          if (up <= 0) {
+            clearInterval(downInterval);
+            isJumping = false;
+          }
+          up -= 5;
+          dino.style.bottom = 15 + up + "px";
+        }, 20);
+      } else {
+        up += 5;
+        dino.style.bottom = 15 + up + "px";
+      }
+    }, 20);
+  }
+
+  function startGame() {
+    obstacle.style.left = "100%";
+    score = 0;
+    gameInterval = setInterval(() => {
+      let obstacleLeft = parseInt(getComputedStyle(obstacle).left);
+      let dinoBottom = parseInt(getComputedStyle(dino).bottom);
+
+      if (obstacleLeft <= 140 && obstacleLeft >= 80 && dinoBottom <= 60) {
+        clearInterval(gameInterval);
+        gameOver.style.display = "block";
+        finalScore.innerText = `Final Score: ${score}`;
+        return;
+      }
+
+      if (obstacleLeft <= -30) {
+        obstacle.style.left = "100%";
+        score += 1;
+        scoreText.innerText = `Score: ${score}`;
+      } else {
+        obstacle.style.left = obstacleLeft - 10 + "px";
+      }
+    }, 30);
+  }
+
+  function restart() {
+    gameOver.style.display = "none";
+    scoreText.innerText = "Score: 0";
+    startGame();
+  }
+
+  startGame();
+</script>
+
+</body>
+</html>
